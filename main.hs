@@ -5,7 +5,7 @@ import Grid
 gridTeste = [1..81] -- grid para testes (nao vai ser usado no sudoku)
 
 
-main = do lerArq "testeLer.txt"
+main = do prettyPrint
 
 rList :: String -> IO [Int]
 rList = readIO
