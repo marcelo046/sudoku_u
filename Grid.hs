@@ -1,16 +1,16 @@
 module Grid
-(takeValue
+(pegarValor
 ,lerArq
 ,coluna
 ,linha
-,block
-,procuraBlock
-,procuralinha
-,procuracoluna
+,bloco
+,procuraBloco
+,procuraLinha
+,procuraColuna
 ,procuraCell
 ,impossiveis
 ,ehZero
-,possibles
+,possiveis
 ,resolveCelula
 ,resolveSudoku
 ,printarGrid
@@ -21,8 +21,8 @@ import System.IO
 import Data.List
 
 -- Pega um valor de um grid
-takeValue :: [Int] -> Int -> Int -> Int -> Int -> Int
-takeValue grid gx gy x y = (grid) !! (3*gx + 9*3*gy + x + 9*y)
+pegarValor :: [Int] -> Int -> Int -> Int -> Int -> Int
+pegarValor grid gx gy x y = (grid) !! (3*gx + 9*3*gy + x + 9*y)
 
 -- funções começam com letra minúscula
 lerArq :: FilePath -> IO ()
@@ -44,8 +44,8 @@ linha n = pontoinicio : resto pontoinicio 1
             resto _ 9 = []
             resto n i = n + i : resto n (i + 1)
 
-block :: Int -> [Int]
-block n = resto pontoinicio 0 0 0
+bloco :: Int -> [Int]
+bloco n = resto pontoinicio 0 0 0
   where pontoinicio | n <= 2 = n * 3
                    | n <= 5 = 27 + (n * 3 - 9)
                    | n <= 8 = 54 + (n * 3 - 18)
@@ -55,29 +55,29 @@ block n = resto pontoinicio 0 0 0
                                     proxX = if n == 2 then x + 9 else x
                                     proxN = if n == 2 then 0 else n + 1
 
-procuraBlock :: Int -> [Int]
-procuraBlock x = procura x 0
+procuraBloco :: Int -> [Int]
+procuraBloco x = procura x 0
               where procura _ 9 = error "Bloco nao encontrado"
                     procura x n = if x `elem` blk then blk else procura x (n + 1)
-                               where blk = block n
+                               where blk = bloco n
 
-procuralinha :: Int -> [Int]
-procuralinha x = procura x 0
+procuraLinha :: Int -> [Int]
+procuraLinha x = procura x 0
             where procura _ 9 = error "Linha nao encontrada"
                   procura x n = if x `elem` rw then rw else procura x (n + 1)
                              where rw = linha n
 
-procuracoluna :: Int -> [Int]
-procuracoluna x = procura x 0
+procuraColuna :: Int -> [Int]
+procuraColuna x = procura x 0
                where procura _ 9 = error "Coluna nao encontrada"
                      procura x n = if x `elem` col then col else procura x (n + 1)
                                 where col = coluna n
 
 procuraCell :: Int -> [Int]
 procuraCell n = sort $ nub $ rw ++ col ++ blk
-             where rw  = procuralinha n
-                   col = procuracoluna n
-                   blk = procuraBlock n
+             where rw  = procuraLinha n
+                   col = procuraColuna n
+                   blk = procuraBloco n
 
 grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
         6, 0, 0,  1, 9, 5,  0, 0, 0,
@@ -105,22 +105,22 @@ ehZero n puzzle = zero puzzle 0
                       zero [] _      = True
                       zero (x:xs) i  = if i == n then x == 0 else zero xs (i + 1)
 
-possibles :: Int -> [Int] -> [Int]
-possibles n puzzle = delete [1..9] (impossiveis n puzzle)
+possiveis :: Int -> [Int] -> [Int]
+possiveis n puzzle = delete [1..9] (impossiveis n puzzle)
                    where delete [] _       = []
                          delete (x:xs) imp = if not (elem x imp) then x : proxDel else proxDel
                                            where proxDel = delete xs imp
 
 resolveCelula :: Int -> [Int] -> Int
-resolveCelula n puzzle = resolve (possibles n puzzle)
+resolveCelula n puzzle = resolve (possiveis n puzzle)
                    where resolve [] = 0
-                         resolve (v:vs) | not (v `elem` (pos procuraBlock))  = v
-                                      | not (v `elem` (pos procuralinha))    = v
-                                      | not (v `elem` (pos procuracoluna)) = v
+                         resolve (v:vs) | not (v `elem` (pos procuraBloco))  = v
+                                      | not (v `elem` (pos procuraLinha))    = v
+                                      | not (v `elem` (pos procuraColuna)) = v
                                       | otherwise                         = resolve vs
                          pos f = pos (filter (/= n) (f n))
                                where pos []      = []
-                                     pos (x:xs)  = possibles x puzzle ++ pos xs
+                                     pos (x:xs)  = possiveis x puzzle ++ pos xs
 
 resolveSudoku :: [Int]
 resolveSudoku = resolve grid 0
