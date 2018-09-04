@@ -5,7 +5,7 @@ import Grid
 gridTeste = [1..81] -- grid para testes (nao vai ser usado no sudoku)
 
 
-main = do prettyPrint
+main = do printarGrid
 
 rList :: String -> IO [Int]
 rList = readIO

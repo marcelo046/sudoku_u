@@ -1,19 +1,19 @@
 module Grid
 (takeValue
 ,lerArq
-,column
-,row
+,coluna
+,linha
 ,block
-,searchBlock
-,searchRow
-,searchColumn
-,searchCell
-,impossibles
-,isZero
+,procuraBlock
+,procuralinha
+,procuracoluna
+,procuraCell
+,impossiveis
+,ehZero
 ,possibles
-,solveCell
-,solveSudoku
-,prettyPrint
+,resolveCelula
+,resolveSudoku
+,printarGrid
 ) where
 
 -- deve-se colocar esses imports, mesmo tendo na main
@@ -33,51 +33,51 @@ lerArq path = do xs <- readFile path -- listas ficam no plural (xs e não só x)
 rList :: String -> IO [Int]
 rList = readIO
 
-column :: Int -> [Int]
-column n = rest n 0
-         where rest _ 9 = []
-               rest n i = n : rest (n + 9) (i + 1)
+coluna :: Int -> [Int]
+coluna n = resto n 0
+         where resto _ 9 = []
+               resto n i = n : resto (n + 9) (i + 1)
 
-row :: Int -> [Int]
-row n = startpoint : rest startpoint 1
-      where startpoint = (n * 9)
-            rest _ 9 = []
-            rest n i = n + i : rest n (i + 1)
+linha :: Int -> [Int]
+linha n = pontoinicio : resto pontoinicio 1
+      where pontoinicio = (n * 9)
+            resto _ 9 = []
+            resto n i = n + i : resto n (i + 1)
 
 block :: Int -> [Int]
-block n = rest startpoint 0 0 0
-  where startpoint | n <= 2 = n * 3
+block n = resto pontoinicio 0 0 0
+  where pontoinicio | n <= 2 = n * 3
                    | n <= 5 = 27 + (n * 3 - 9)
                    | n <= 8 = 54 + (n * 3 - 18)
-        rest _ _ _ 9 = []
-        rest startpoint x n i = number : rest startpoint nextX nextN (i + 1)
-                              where number = startpoint + n + x
-                                    nextX = if n == 2 then x + 9 else x
-                                    nextN = if n == 2 then 0 else n + 1
+        resto _ _ _ 9 = []
+        resto pontoinicio x n i = numero : resto pontoinicio proxX proxN (i + 1)
+                              where numero = pontoinicio + n + x
+                                    proxX = if n == 2 then x + 9 else x
+                                    proxN = if n == 2 then 0 else n + 1
 
-searchBlock :: Int -> [Int]
-searchBlock x = search x 0
-              where search _ 9 = error "Could not find block"
-                    search x n = if x `elem` blk then blk else search x (n + 1)
+procuraBlock :: Int -> [Int]
+procuraBlock x = procura x 0
+              where procura _ 9 = error "Bloco nao encontrado"
+                    procura x n = if x `elem` blk then blk else procura x (n + 1)
                                where blk = block n
 
-searchRow :: Int -> [Int]
-searchRow x = search x 0
-            where search _ 9 = error "Could not find row"
-                  search x n = if x `elem` rw then rw else search x (n + 1)
-                             where rw = row n
+procuralinha :: Int -> [Int]
+procuralinha x = procura x 0
+            where procura _ 9 = error "Linha nao encontrada"
+                  procura x n = if x `elem` rw then rw else procura x (n + 1)
+                             where rw = linha n
 
-searchColumn :: Int -> [Int]
-searchColumn x = search x 0
-               where search _ 9 = error "Could not find column"
-                     search x n = if x `elem` col then col else search x (n + 1)
-                                where col = column n
+procuracoluna :: Int -> [Int]
+procuracoluna x = procura x 0
+               where procura _ 9 = error "Coluna nao encontrada"
+                     procura x n = if x `elem` col then col else procura x (n + 1)
+                                where col = coluna n
 
-searchCell :: Int -> [Int]
-searchCell n = sort $ nub $ rw ++ col ++ blk
-             where rw  = searchRow n
-                   col = searchColumn n
-                   blk = searchBlock n
+procuraCell :: Int -> [Int]
+procuraCell n = sort $ nub $ rw ++ col ++ blk
+             where rw  = procuralinha n
+                   col = procuracoluna n
+                   blk = procuraBlock n
 
 grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
         6, 0, 0,  1, 9, 5,  0, 0, 0,
@@ -91,66 +91,66 @@ grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
         0, 0, 0,  4, 1, 9,  0, 0, 5,
         0, 0, 0,  0, 8, 0,  0, 7, 9]
 
-impossibles :: Int -> [Int] -> [Int]
-impossibles n puzzle = if zero then getImp else [1..9]
-                     where zero = isZero n puzzle
-                           getImp = sort $ nub $ filter (/= 0) (getValues puzzle (searchCell n) 0)
+impossiveis :: Int -> [Int] -> [Int]
+impossiveis n puzzle = if zero then getImp else [1..9]
+                     where zero = ehZero n puzzle
+                           getImp = sort $ nub $ filter (/= 0) (getValues puzzle (procuraCell n) 0)
                                   where getValues [] _ _         = []
                                         getValues (x:xs) cells i = if i `elem` cells then x : nextVal else nextVal
                                                                  where nextVal = getValues xs cells (i + 1)
 
-isZero :: Int -> [Int] -> Bool
-isZero n puzzle = zero puzzle 0
-                where zero _ 81      = error "out of bounds"
+ehZero :: Int -> [Int] -> Bool
+ehZero n puzzle = zero puzzle 0
+                where zero _ 81      = error "fora do limite"
                       zero [] _      = True
                       zero (x:xs) i  = if i == n then x == 0 else zero xs (i + 1)
 
 possibles :: Int -> [Int] -> [Int]
-possibles n puzzle = delete [1..9] (impossibles n puzzle)
+possibles n puzzle = delete [1..9] (impossiveis n puzzle)
                    where delete [] _       = []
-                         delete (x:xs) imp = if not (elem x imp) then x : nextDel else nextDel
-                                           where nextDel = delete xs imp
+                         delete (x:xs) imp = if not (elem x imp) then x : proxDel else proxDel
+                                           where proxDel = delete xs imp
 
-solveCell :: Int -> [Int] -> Int
-solveCell n puzzle = solve (possibles n puzzle)
-                   where solve [] = 0
-                         solve (v:vs) | not (v `elem` (pos searchBlock))  = v
-                                      | not (v `elem` (pos searchRow))    = v
-                                      | not (v `elem` (pos searchColumn)) = v
-                                      | otherwise                         = solve vs
+resolveCelula :: Int -> [Int] -> Int
+resolveCelula n puzzle = resolve (possibles n puzzle)
+                   where resolve [] = 0
+                         resolve (v:vs) | not (v `elem` (pos procuraBlock))  = v
+                                      | not (v `elem` (pos procuralinha))    = v
+                                      | not (v `elem` (pos procuracoluna)) = v
+                                      | otherwise                         = resolve vs
                          pos f = pos (filter (/= n) (f n))
                                where pos []      = []
                                      pos (x:xs)  = possibles x puzzle ++ pos xs
 
-solveSudoku :: [Int]
-solveSudoku = solve grid 0
-              where solve puzzle 5000 = puzzle
-                    solve puzzle i = if all (/= 0) puzzle
+resolveSudoku :: [Int]
+resolveSudoku = resolve grid 0
+              where resolve puzzle 5000 = puzzle
+                    resolve puzzle i = if all (/= 0) puzzle
                                      then puzzle
-                                     else solve (loop puzzle puzzle 0) (i + 1)
+                                     else resolve (loop puzzle puzzle 0) (i + 1)
 
                     loop _ [] _          = []
-                    loop puzzle (0:xs) n = solveCell n puzzle : loop puzzle xs (n + 1)
+                    loop puzzle (0:xs) n = resolveCelula n puzzle : loop puzzle xs (n + 1)
                     loop puzzle (x:xs) n = x : loop puzzle xs (n + 1)
 
-prettyPrint :: IO ()
-prettyPrint = do
-              print verticalLine
-              myprint solveSudoku 0
-            where myprint [] _   = do
-                                   print verticalLine
-                  myprint grid 3 = do
-                                   print verticalLine
-                                   myprint grid 0
-                  myprint grid n = do
-                                   print (line (take 9 grid) "|" 0)
-                                   myprint (drop 9 grid) (n + 1)
+printarGrid :: IO ()
+printarGrid = do
+              print linhaVertical
+              meuprint resolveSudoku 0
+            where meuprint [] _   = do
+                                   print linhaVertical
+                  meuprint grid 3 = do
+                                   print linhaVertical
+                                   meuprint grid 0
+                  meuprint grid n = do
+                                   print (linha (take 9 grid) "|" 0)
+                                   meuprint (drop 9 grid) (n + 1)
 
-                  line [] str _     = str ++ " |"
-                  line x  str 3     = line x (str ++ " |") 0
-                  line (x:xs) str n = line xs (str ++ " " ++ (show x)) (n + 1)
+                  linha [] str _     = str ++ " |"
+                  linha x  str 3     = linha x (str ++ " |") 0
+                  linha (x:xs) str n = linha xs (str ++ " " ++ (show x)) (n + 1)
 
-                  verticalLine = replicate 25 '-'
+                  linhaVertical = replicate 25 '-'
 
 
 
