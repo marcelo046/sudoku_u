@@ -2,10 +2,20 @@ import Data.List
 import System.IO
 import Grid
 
-gridTeste = [1..81] -- grid para testes (nao vai ser usado no sudoku)
-
 
 main = do printarGrid
+          putStrLn "digite a coordenada x: "
+          x <- getNumber
+          putStrLn "digite a coordenada y: "
+          y <- getNumber
+          putStrLn "digite o valor: "
+          num <- getNumber
+          marcarNoGrid x y num -- terminar essa função
+          -- depois colocar aqui função de valiar
+          if False then putStrLn "venceu!!!" else main -- no lugar do False, colocar função para ver se venceu
+
+
+--let venceu = False
 
 rList :: String -> IO [Int]
 rList = readIO

@@ -14,15 +14,24 @@ module Grid
 ,resolveCelula
 ,resolveSudoku
 ,printarGrid
+,marcarNoGrid
+,getNumber
 ) where
 
 -- deve-se colocar esses imports, mesmo tendo na main
 import System.IO
 import Data.List
 
+marcarNoGrid x y num = do putStrLn("valores marcados")
+
 -- Pega um valor de um grid
 pegarValor :: [Int] -> Int -> Int -> Int -> Int -> Int
 pegarValor grid gx gy x y = (grid) !! (3*gx + 9*3*gy + x + 9*y)
+
+getNumber::IO Int
+getNumber = do
+    num <- getLine
+    return (read num)
 
 -- funções começam com letra minúscula
 lerArq :: FilePath -> IO ()
@@ -136,7 +145,8 @@ resolveSudoku = resolve grid 0
 printarGrid :: IO ()
 printarGrid = do
               print linhaVertical
-              meuprint resolveSudoku 0
+              --meuprint resolveSudoku 0
+              meuprint grid 0
             where meuprint [] _   = do
                                    print linhaVertical
                   meuprint grid 3 = do
