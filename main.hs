@@ -1,8 +1,28 @@
+import Data.List
+import System.IO
 import Grid
 
 gridTeste = [1..81] -- grid para testes (nao vai ser usado no sudoku)
 
-main = do print(takeValue gridTeste 1 1 0 0)
+
+main = do lerArq "testeLer.txt"
+
+rList :: String -> IO [Int]
+rList = readIO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -18,4 +38,11 @@ main = do print(takeValue gridTeste 1 1 0 0)
 |55 56 57| 58 59 60| 61 62 63|
 |64 65 66| 67 68 69| 70 71 72|
 |73 74 75| 76 77 78| 79 80 81|
+-}
+
+{-printa :: (Num b) => [a] -> b
+printa :: Show a => [a] -> IO ()
+printa [] = print(" fim")
+printa (x:xs) = do  print(x)
+                    printa(xs)
 -}
