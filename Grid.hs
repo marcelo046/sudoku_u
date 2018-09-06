@@ -16,6 +16,7 @@ module Grid
 ,printarGrid
 ,marcarNoGrid
 ,getNumber
+,venceu
 ) where
 
 -- deve-se colocar esses imports, mesmo tendo na main
@@ -23,6 +24,8 @@ import System.IO
 import Data.List
 
 marcarNoGrid x y num = do putStrLn("valores marcados")
+
+venceu = product grid > 0
 
 -- Pega um valor de um grid
 pegarValor :: [Int] -> Int -> Int -> Int -> Int -> Int

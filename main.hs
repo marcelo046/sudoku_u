@@ -12,7 +12,7 @@ main = do printarGrid
           num <- getNumber
           marcarNoGrid x y num -- terminar essa função
           -- depois colocar aqui função de valiar
-          if False then putStrLn "venceu!!!" else main -- no lugar do False, colocar função para ver se venceu
+          if venceu then putStrLn "venceu!!!" else main -- no lugar do False, colocar função para ver se venceu
 
 
 --let venceu = False
