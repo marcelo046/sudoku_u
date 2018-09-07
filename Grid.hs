@@ -14,7 +14,7 @@ module Grid
 ,resolveCelula
 ,resolveSudoku
 ,printarGrid
-,marcarNoGrid
+,montarGrid
 ,getNumber
 ,venceu
 ) where
@@ -22,8 +22,8 @@ module Grid
 -- deve-se colocar esses imports, mesmo tendo na main
 import System.IO
 import Data.List
-
-marcarNoGrid x y num = do putStrLn("valores marcados")
+grid = [1..81]
+montarGrid x y num oldGrid = [1..81]
 
 venceu = product grid > 0
 
@@ -91,17 +91,17 @@ procuraCell n = sort $ nub $ rw ++ col ++ blk
                    col = procuraColuna n
                    blk = procuraBloco n
 
-grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
-        6, 0, 0,  1, 9, 5,  0, 0, 0,
-        0, 9, 8,  0, 0, 0,  0, 6, 0,
+{-let grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
+       6, 0, 0,  1, 9, 5,  0, 0, 0,
+       0, 9, 8,  0, 0, 0,  0, 6, 0,
 
-        8, 0, 0,  0, 6, 0,  0, 0, 3,
-        4, 0, 0,  8, 0, 3,  0, 0, 1,
-        7, 0, 0,  0, 2, 0,  0, 0, 6,
+       8, 0, 0,  0, 6, 0,  0, 0, 3,
+       4, 0, 0,  8, 0, 3,  0, 0, 1,
+       7, 0, 0,  0, 2, 0,  0, 0, 6,
 
-        0, 6, 0,  0, 0, 0,  2, 8, 0,
-        0, 0, 0,  4, 1, 9,  0, 0, 5,
-        0, 0, 0,  0, 8, 0,  0, 7, 9]
+       0, 6, 0,  0, 0, 0,  2, 8, 0,
+       0, 0, 0,  4, 1, 9,  0, 0, 5,
+       0, 0, 0,  0, 8, 0,  0, 7, 9]-}
 
 impossiveis :: Int -> [Int] -> [Int]
 impossiveis n puzzle = if zero then getImp else [1..9]
@@ -145,26 +145,26 @@ resolveSudoku = resolve grid 0
                     loop puzzle (0:xs) n = resolveCelula n puzzle : loop puzzle xs (n + 1)
                     loop puzzle (x:xs) n = x : loop puzzle xs (n + 1)
 
-printarGrid :: IO ()
-printarGrid = do
+printarGrid :: [Int] -> IO ()
+printarGrid oldGrid = do
               print linhaVertical
               --meuprint resolveSudoku 0
-              meuprint grid 0
+              meuprint oldGrid 0
             where meuprint [] _   = do
                                    print linhaVertical
-                  meuprint grid 3 = do
+                  meuprint oldGrid 3 = do
                                    print linhaVertical
-                                   meuprint grid 0
-                  meuprint grid n = do
-                                   print (linha (take 9 grid) "|" 0)
-                                   meuprint (drop 9 grid) (n + 1)
+                                   meuprint oldGrid 0
+                  meuprint oldGrid n = do
+                                   print (linha (take 9 oldGrid) "|" 0)
+                                   meuprint (drop 9 oldGrid) (n + 1)
 
                   linha [] str _     = str ++ " |"
                   linha x  str 3     = linha x (str ++ " |") 0
                   linha (x:xs) str n = linha xs (str ++ " " ++ (show x)) (n + 1)
 
                   linhaVertical = replicate 25 '-'
-
+-- fim
 
 
 

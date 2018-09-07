@@ -2,7 +2,7 @@
 import Data.List
 import System.IO
 
-grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
+{-let grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
         6, 0, 0,  1, 9, 5,  0, 0, 0,
         0, 9, 8,  0, 0, 0,  0, 6, 0,
 
@@ -12,11 +12,11 @@ grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
 
         0, 6, 0,  0, 0, 0,  2, 8, 0,
         0, 0, 0,  4, 1, 9,  0, 0, 5,
-        0, 0, 0,  0, 8, 0,  0, 7, 9]
+        0, 0, 0,  0, 8, 0,  0, 7, 9]-}
 --let grid = [1..81]
 --import Grid
 
-main = jogo(grid)
+main = jogo([1..81])
 
 jogo oldGrid = do printarGrid oldGrid
                   putStrLn("digite a coordenada x: ")
@@ -27,8 +27,6 @@ jogo oldGrid = do printarGrid oldGrid
                   num <- getNumber
                   let newGrid = montarGrid x y num oldGrid
                   if venceu newGrid then putStrLn "venceu!!!" else jogo newGrid
-
-
 
 --grid = [1..81]
 montarGrid x y num oldGrid = [1..81]
