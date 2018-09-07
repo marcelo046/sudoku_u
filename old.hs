@@ -1,27 +1,35 @@
-module Grid
-(pegarValor
-,lerArq
-,coluna
-,linha
-,bloco
-,procuraBloco
-,procuraLinha
-,procuraColuna
-,procuraCell
-,impossiveis
-,ehZero
-,possiveis
-,resolveCelula
-,resolveSudoku
-,printarGrid
-,montarGrid
-,getNumber
-,venceu
-) where
 
--- deve-se colocar esses imports, mesmo tendo na main
-import System.IO
 import Data.List
+import System.IO
+{-let grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
+        6, 0, 0,  1, 9, 5,  0, 0, 0,
+        0, 9, 8,  0, 0, 0,  0, 6, 0,
+
+        8, 0, 0,  0, 6, 0,  0, 0, 3,
+        4, 0, 0,  8, 0, 3,  0, 0, 1,
+        7, 0, 0,  0, 2, 0,  0, 0, 6,
+
+        0, 6, 0,  0, 0, 0,  2, 8, 0,
+        0, 0, 0,  4, 1, 9,  0, 0, 5,
+        0, 0, 0,  0, 8, 0,  0, 7, 9]-}
+--let grid = [1..81]
+--import Grid
+
+main = jogo [1..81]
+
+jogo oldGrid = do printarGrid oldGrid
+                  putStrLn("digite a coordenada x: ")
+                  x <- getNumber
+                  putStrLn "digite a coordenada y: "
+                  y <- getNumber
+                  putStrLn "digite o valor: "
+                  num <- getNumber
+                  newGrid = montarGrid x y num oldGrid -- terminar essa função
+                  -- depois colocar aqui função de valiar
+                  if venceu then putStrLn "venceu!!!" else jogo newGrid -- no lugar do False, colocar função para ver se venceu
+
+
+
 grid = [1..81]
 montarGrid x y num oldGrid = [1..81]
 
@@ -164,60 +172,3 @@ printarGrid oldGrid = do
                   linha (x:xs) str n = linha xs (str ++ " " ++ (show x)) (n + 1)
 
                   linhaVertical = replicate 25 '-'
--- fim
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- Verifica se tem algum valor repitido (ignora o 0)
---MyRepeat :: (Eq a) => [a] -> Bool
-
-
---printGrid h:t = do
-
-
-
-{-
-x <- readFile "testeLer.txt"
-          y <- rList x
-          print( y )
-
-rList :: String -> IO [Int]
-rList = readIO
--}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{-MyRepeat [] = False
-MyRepeat [_] = False
-MyRepeat (h:t) = if h /= 0 && elem h t then True
-                                        else MyRepeat t-}
