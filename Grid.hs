@@ -1,7 +1,17 @@
 module Grid
-(pegarValor
+(grid
+,invalido
+,montarGrid
+,venceu
+,pegarValor
+,lerNumero
+,pegaLinha
+,pegaColuna
+,pegaBloco
+,printarGrid
 ,lerArq
-,coluna
+,rList
+{-,coluna
 ,linha
 ,bloco
 ,procuraBloco
@@ -12,39 +22,91 @@ module Grid
 ,ehZero
 ,possiveis
 ,resolveCelula
-,resolveSudoku
-,printarGrid
-,montarGrid
-,getNumber
-,venceu
+,resolveSudoku-}
 ) where
 
--- deve-se colocar esses imports, mesmo tendo na main
-import System.IO
-import Data.List
-grid = [1..81]
-montarGrid x y num oldGrid = [1..81]
+grid :: [Int]
+grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
+        6, 0, 0,  1, 9, 5,  0, 0, 0,
+        0, 9, 8,  0, 0, 0,  0, 6, 0,
 
-venceu = product grid > 0
+        8, 0, 0,  0, 6, 0,  0, 0, 3,
+        4, 0, 0,  8, 0, 3,  0, 0, 1,
+        7, 0, 0,  0, 2, 0,  0, 0, 6,
 
--- Pega um valor de um grid
-pegarValor :: [Int] -> Int -> Int -> Int -> Int -> Int
-pegarValor grid gx gy x y = (grid) !! (3*gx + 9*3*gy + x + 9*y)
+        0, 6, 0,  0, 0, 0,  2, 8, 0,
+        0, 0, 0,  4, 1, 9,  0, 0, 5,
+        0, 0, 0,  0, 8, 0,  0, 7, 9]
+--
+invalido x y num oldGrid
+    | not(num `elem` [1..9]) = True
+    | not(x `elem` [1..9])   = True
+    | not(y `elem` [1..9])   = True
+    | num `elem` pegaBloco x y oldGrid   = True
+    | num `elem` pegaLinha y grid 0 = True
+    | num `elem` pegaColuna x grid 0 = True
+    | otherwise              = False
 
-getNumber::IO Int
-getNumber = do
+--montarGrid :: Int -> Int -> Int -> [Int] -> [Int]
+montarGrid x y num oldGrid =  if invalido x y num oldGrid then oldGrid
+                              else take (x + 9*y) oldGrid ++ [num] ++ drop (x + 9*y + 1) oldGrid
+
+-- verifica de ja preencheu todo o grid
+venceu newGrid = product newGrid > 0
+
+-- Pega um valor de um grid da coord x y
+pegarValor :: [Int] -> Int -> Int -> Int
+pegarValor grid x y = (grid) !! (x + 9*y)
+
+lerNumero::IO Int
+lerNumero = do
     num <- getLine
     return (read num)
 
--- funções começam com letra minúscula
+--pegaLinha :: Int -> [Int] -> [Int]
+pegaLinha _ _ 9 = []
+pegaLinha n grid x = [grid !! (x + 9*n)] ++ pegaLinha n grid (x+1)
+
+--pegaColuna :: Int -> [Int] -> [Int]
+pegaColuna _ _ 9 = []
+pegaColuna n grid x = [grid !! (9*x + n)] ++ pegaColuna n grid (x+1)
+
+-- pega um bloco em forma de vetor em que o valor da coord x y está localizada
+--pegaBloco :: Int -> Int -> [Int] -> [Int]
+pegaBloco x y grid =  (take 3 (pegaLinha l grid c)) ++ (take 3 (pegaLinha (l+1) grid c)) ++ (take 3 (pegaLinha (l+2) grid c))
+                    where l = (quot y 3)*3
+                          c = (quot x 3)*3
+
+printarGrid :: [Int] -> IO ()
+printarGrid oldGrid = do
+              print linhaVertical
+              meuprint oldGrid 0
+            where meuprint [] _   = do
+                                   print linhaVertical
+                  meuprint oldGrid 3 = do
+                                   print linhaVertical
+                                   meuprint oldGrid 0
+                  meuprint oldGrid n = do
+                                   print (linha (take 9 oldGrid) "|" 0)
+                                   meuprint (drop 9 oldGrid) (n + 1)
+
+                  linha [] str _     = str ++ " |"
+                  linha x  str 3     = linha x (str ++ " |") 0
+                  linha (x:xs) str n = linha xs (str ++ " " ++ (show x)) (n + 1)
+
+                  linhaVertical = replicate 25 '-'
+
+-------------  funções não sendo usadas  --------------------
+
 lerArq :: FilePath -> IO ()
-lerArq path = do xs <- readFile path -- listas ficam no plural (xs e não só x)
+lerArq path = do xs <- readFile path
                  ys <- rList xs
                  print(ys)
 
 rList :: String -> IO [Int]
 rList = readIO
 
+{-
 coluna :: Int -> [Int]
 coluna n = resto n 0
          where resto _ 9 = []
@@ -91,18 +153,6 @@ procuraCell n = sort $ nub $ rw ++ col ++ blk
                    col = procuraColuna n
                    blk = procuraBloco n
 
-{-let grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
-       6, 0, 0,  1, 9, 5,  0, 0, 0,
-       0, 9, 8,  0, 0, 0,  0, 6, 0,
-
-       8, 0, 0,  0, 6, 0,  0, 0, 3,
-       4, 0, 0,  8, 0, 3,  0, 0, 1,
-       7, 0, 0,  0, 2, 0,  0, 0, 6,
-
-       0, 6, 0,  0, 0, 0,  2, 8, 0,
-       0, 0, 0,  4, 1, 9,  0, 0, 5,
-       0, 0, 0,  0, 8, 0,  0, 7, 9]-}
-
 impossiveis :: Int -> [Int] -> [Int]
 impossiveis n puzzle = if zero then getImp else [1..9]
                      where zero = ehZero n puzzle
@@ -144,80 +194,4 @@ resolveSudoku = resolve grid 0
                     loop _ [] _          = []
                     loop puzzle (0:xs) n = resolveCelula n puzzle : loop puzzle xs (n + 1)
                     loop puzzle (x:xs) n = x : loop puzzle xs (n + 1)
-
-printarGrid :: [Int] -> IO ()
-printarGrid oldGrid = do
-              print linhaVertical
-              --meuprint resolveSudoku 0
-              meuprint oldGrid 0
-            where meuprint [] _   = do
-                                   print linhaVertical
-                  meuprint oldGrid 3 = do
-                                   print linhaVertical
-                                   meuprint oldGrid 0
-                  meuprint oldGrid n = do
-                                   print (linha (take 9 oldGrid) "|" 0)
-                                   meuprint (drop 9 oldGrid) (n + 1)
-
-                  linha [] str _     = str ++ " |"
-                  linha x  str 3     = linha x (str ++ " |") 0
-                  linha (x:xs) str n = linha xs (str ++ " " ++ (show x)) (n + 1)
-
-                  linhaVertical = replicate 25 '-'
--- fim
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- Verifica se tem algum valor repitido (ignora o 0)
---MyRepeat :: (Eq a) => [a] -> Bool
-
-
---printGrid h:t = do
-
-
-
-{-
-x <- readFile "testeLer.txt"
-          y <- rList x
-          print( y )
-
-rList :: String -> IO [Int]
-rList = readIO
 -}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{-MyRepeat [] = False
-MyRepeat [_] = False
-MyRepeat (h:t) = if h /= 0 && elem h t then True
-                                        else MyRepeat t-}
