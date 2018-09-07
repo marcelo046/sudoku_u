@@ -1,6 +1,7 @@
 
 import Data.List
 import System.IO
+
 {-let grid = [5, 3, 0,  0, 7, 0,  0, 0, 0,
         6, 0, 0,  1, 9, 5,  0, 0, 0,
         0, 9, 8,  0, 0, 0,  0, 6, 0,
@@ -15,7 +16,7 @@ import System.IO
 --let grid = [1..81]
 --import Grid
 
-main = jogo [1..81]
+main = jogo([1..81])
 
 jogo oldGrid = do printarGrid oldGrid
                   putStrLn("digite a coordenada x: ")
@@ -24,16 +25,13 @@ jogo oldGrid = do printarGrid oldGrid
                   y <- getNumber
                   putStrLn "digite o valor: "
                   num <- getNumber
-                  newGrid = montarGrid x y num oldGrid -- terminar essa função
-                  -- depois colocar aqui função de valiar
-                  if venceu then putStrLn "venceu!!!" else jogo newGrid -- no lugar do False, colocar função para ver se venceu
+                  let newGrid = montarGrid x y num oldGrid
+                  if venceu newGrid then putStrLn "venceu!!!" else jogo newGrid
 
-
-
-grid = [1..81]
+--grid = [1..81]
 montarGrid x y num oldGrid = [1..81]
 
-venceu = product grid > 0
+venceu newGrid = product newGrid > 0
 
 -- Pega um valor de um grid
 pegarValor :: [Int] -> Int -> Int -> Int -> Int -> Int
